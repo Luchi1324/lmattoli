@@ -1,0 +1,4 @@
+### 9/5/2024
+I worked today on the practice 1 problems. Unfortunately I wasn't able to make the class due to some personal issues I had to handle.
+Trying to approach each problem purely recursively in a functional manner was a bit of a challenge, but I refered to some of my old codes in TPL since a lot of the languages were functional ones. 
+After that, and using a mixture of the textbook/chat to help me find how the guard and other structures worked in Haskell, I think i was able to get them working. They all passed the test cases provided in the assignment. I used chat more for the first two but after I used it for that, I found that I was able to work with it better for the rest of the problems. I did have to use chat a bit more for the DetailedDifferences, as the wording of the question confused me a bit.
