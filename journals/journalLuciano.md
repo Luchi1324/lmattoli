@@ -72,5 +72,5 @@ hoSequenceApplication f start end
     | start == end = end
     | otherwise = start `f` hoSequenceApplication f (start + 1) end
 ```
-
-The filip was a bit puzzling. I work better with more explicit languages where I can see what values are being manipulated/taken in. So a language like Haskell that uses a lot of implicit passing and with how it joins functions is something that I naturally struggle to use. 
+The filip was a bit puzzling. I work better with more explicit languages where I can see what values are being manipulated/taken in. So a language like Haskell that uses a lot of implicit passing and with how it joins functions is something that I naturally struggle to use.
+`(show . maximum . map read . map reverse . words) s` Like I get how this works and it makes sense, but just chaining all of them together or even getting to that point makes my head hurt.
