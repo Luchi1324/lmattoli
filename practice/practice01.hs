@@ -1,9 +1,40 @@
 import Data.Char (isAlpha, toLower)
 
 -- Problem 1
+{-
+  public Object elemAt (int n, List<Object> xs)
+-}
 elemAt :: Int -> [a] -> a
+elemAt n [] = error "elemAt: empty list"
 elemAt 0 (x:xs) = x
 elemAt n (x:xs) = elemAt (n - 1) xs
+-- Class solutions:
+-- if, just recursive
+-- elemAt i xs = 
+--  if null xs
+--    then error "elemAt: empty list"
+--  if i > 0 
+--    then elemAt (i-1) (tail xs) 
+--    else head xs
+-- guarded statement
+-- elemAt i xs
+--  | null xs = error "elemAt: empty list"
+--  | i > 0 = elemAt (i-1) (tail xs)
+--  | otherwise [this just means true] = head xs
+-- pattern matching
+-- elemAt i [] = error "elemAt: empty list"
+-- elemAt 0 xs = head xs
+-- elemAt i xs = elemAt (i-1) (tail xs)
+-- pattern matching + guard
+-- elemAt _ [] = error "elemAt: empty list"
+-- elemAt i (x:xs)
+--  | i > 0 = elemtAt (i-1) xs
+--  | otherwise = head xs
+-- smart version
+-- elemAt i xs = xs !! i
+-- smarter version (point free form)
+-- elemAt :: Int -> [a] -> a
+-- elemAt = flip (!!)
 
 -- Problem 2
 isPalindrome :: String -> Bool
