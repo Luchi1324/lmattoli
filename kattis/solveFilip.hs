@@ -1,7 +1,9 @@
 main :: IO()
 main = do
     print "solveFilip 734 893(class)"
-
+    -- works with [showTheWork' (doTheWork' (parseFilip' "734 893"))] in GHCI
+    -- or [showTheWork' . doTheWork' . parseFilip' $ "734 893"]
+    solveFilip'
 
 
 solveFilip :: Int -> Int -> Int
