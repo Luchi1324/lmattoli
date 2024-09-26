@@ -348,3 +348,125 @@ For claritys sake, breaking cp down into its recursive calls for `cp [[1,2], [3,
       ]
 ```
                     
+
+## Chapter 5 (Sudoku)
+### Specification
+We can start by creating types for each unit, such as matrix and row.
+- `type Matrix a = [Row a]`
+- `type Row a = [a]`
+Since a matrix is a list of rows, where a m * n matrix is a list of m rows and in each row is a list with the same length n. Haskell type synonyms can't enforce these constraints. So further definition is required.
+A grid is a 9 x 9 matrix of digits
+- `type Grid = Matrix Digit`
+- `type Digit = Char`
+Valid digits are 1 - 9, with 0 being a blank.
+- `digits :: [Char]`
+- `digits = ['1' .. '9']` (We can do this since Char is an instance of Enum)
+- `blank :: Digit -> Bool`
+- `blank = (== '0')`
+
+There are many approaches to solving a sudoku puzzle. One way is that we can start with the given grid, and complete it by filling in every possible choice for the blank entires. This results in a list of filled grids. After, we can filter this list for those that don't contain duplicates in any row, box, or column. This is implemented using
+```
+solve :: Grid -> [Grid]
+solve = filter valid . completions
+```
+where the subsidiary (helper) functions have types
+```
+completions :: Grid -> [Grid]
+valid :: Grid -> Bool
+```
+We can work on completions by defining it as a two step process. Choices is expanded by creating a func choice that installs the avaliable digits for each cell. If the cell is blank, then all digits are installed
+```
+completions = expand . choices
+choices :: Grid -> Matrix [Digit]
+choices = map (map choice)
+    where 
+        choice d = if blank d then digits else [d]
+expand :: Matrix [Digit] -> [Grid]
+```
+In expand, we want to use the cartesian product to expand out all of the possible row values. Essentially, we are breaking up its argument list into two possibilites, the empty list `[]` and a non empty list `xs:xss` (Remember that xs is just a list, and xss list of lists). We can define it as cp. So it breaks down further to
+```
+expand :: Matrix Choices -> [Grid]
+expand = cp . map cp
+```
+Suppose that we assume `cp [[2], [1,3]]` results in `[[2,1], [2,3]]`. If we wanted to extend this definition to `cp ([1,2,3] : [[2], [1,3]])`, then we need to prefix 1 to every element of `cp [[2], [1,3]]`, then to prefix 2 to every element of the same list, and finally to prefix 3 to every element.
+
+```
+cp :: [[a]] -> [[a]]                List of 4 lists of 3 elements -> List of 3^4 lists of 4 elements
+cp [] = [[]]
+cp (xs:xss) =                       In this list comprehension, it breaks it down into the beginning list (xs), and the remaining lists (xss).
+    [x:ys | x <- xs, ys <- cp xss]  This constructs new lists by taking each x from xs, recursively computing cp xss to get all combinations (ys) from the remaining lists, 
+                                    then prepending x to each combination ys to for a new list x:ys
+```
+To complete the valid function, we create a nodups function to find out if a grid has duplicates. Alongside rows, cols, and boxs with a group and ungroup helper
+```
+nodups :: [Digit] -> Bool
+nodups xs = length (nub xs) == length xs        -- Nub removes duplicates from a list
+nodups [] = True
+nodups (x:xs) = not (x `elem` xs) && nodups xs
+
+rows :: Matrix a -> [Row a]
+rows = id
+
+cols            :: Matrix a -> [Row a]
+cols [xs]       = [[x] | x <- xs] -- xs is a single row
+cols (xs:xss)   = zipWith (:) xs (cols xss)
+
+boxs :: Matrix a -> [Row a]
+boxs = map ungroup . ungroup . map cols . group . map group
+
+ungroup = concat
+group []           = []
+group (x:y:z:xs)   = [x,y,z] : group xs
+```
+The rest of valid,
+```
+valid :: Grid -> Bool
+valid g =   all nodups (boxs g) &&
+            all nodups (cols g) &&
+            all nodups (boxs g)
+```
+
+For claritys sake, breaking cp down into its recursive calls for `cp [[1,2], [3,4], [5,6]]` to better understand how the list comprehension works.
+- First call
+```
+    cp ([1,2] : [[3,4], [5,6]])
+    = [ x:ys | x <- [1,2], ys <- cp [[3,4], [5,6]] ]
+```
+- Second call
+```
+    cp ([3,4] : [[5,6]])
+    = [ x:ys | x <- [3,4], ys <- cp [[5,6]] ]
+```
+- Third call
+```
+    cp ([5,6] : [])
+    = [ x:ys | x <- [5,6], ys <- cp [] ]
+```
+- Base case
+```
+    cp []
+    = [[]]
+```
+- Third call resumes
+```
+    cp [[5,6]]
+    = [ x:ys | x <- [5,6], ys <- [[]] ]
+    = [ [5], [6] ]
+
+```
+- Second call resumes    
+```
+    cp [[3,4], [5,6]]
+    = [ x:ys | x <- [3,4], ys <- [[5], [6]] ]
+    = [ [3,5], [3,6], [4,5], [4,6] ]
+```
+- First call resumes
+```
+    cp [[1,2], [3,4], [5,6]]
+    = [ x:ys | x <- [1,2], ys <- [ [3,5], [3,6], [4,5], [4,6] ] ]
+    = [
+        [1,3,5], [1,3,6], [1,4,5], [1,4,6],
+        [2,3,5], [2,3,6], [2,4,5], [2,4,6]
+      ]
+```
+                    
