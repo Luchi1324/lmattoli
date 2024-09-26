@@ -167,13 +167,37 @@ There's lots of existing notation in Haskell for enumerating lists of integers. 
 `[1,3..15]`
 `[1..]`
 `['A'..'Z']`
-
 ### Comprehensions
 Think of it like Set Comprehension notation ( {n^2 : n e Z+} )
 So `[n^2 | x <- [1..]]` produces `[1, 4, 9, 16..]`
 This can be used to define common functions for lists. For example,
-`map f xs = [f x | x <- xs]`
-However in Haskell, this works the other way around. List comprehensions are translated into equivalent definitions in terms of map and concat. `[e | Q1, Q2] = concat [[e | Q2] | Q1]`
+- `map f xs = [f x | x <- xs]`
+- `filter p xs = [x | x <- xs, p x]`
+- `concat xss [x | xs <- xss, x <- xs]`
+However in Haskell, this works the other way around. List comprehensions are translated into equivalent definitions in terms of map and concat. The translation rules are 
+- `[e |True] = [e]`
+- `[e | q] = [e | q, True]`
+- `[e | b, Q] = if b then [e | Q] else []`
+- `[e | p <- xs, Q] = let ok p = [e | Q]`
+- `                       ok _ = []     `
+- `                      in concat (map ok xs)`
+Here the definition of `ok` in the fourth rules uses a _don't care_ pattern, also a _wild card_. The `p` in the fourth rule is a pattern, and the definition of `ok` says that the empty list is returned on any argument that doesn't match the pattern `p`.
+Another useful rule is
+- `[e | Q1, Q2] = concat [[e | Q2] | Q1]`
+### Basic operations
+Functions can be defined over lists by pattern matching.
+```
+null :: [a] -> Bool
+null [] = True
+null (x:xs) = False
+```
+Alternatively, with a _don't care_ pattern.
+```
+null [] = True
+null _ = False
+```
+
+`[]` and `(x:xs)` are patterns that are disjoint and exhaustive, so we can write the two equations for null in any order.
 
 Example of map toUpper for a list of words (since map toUpper only works on one 'word')
 ```
@@ -182,23 +206,96 @@ allToUpper (x:xs) = map toUpper x : allToUpper xs
 allToUpper [] = []
 ```
 Also `map (map toUpper) words`
-
-### Basic operations
-Functions can be defined over lists by pattern matching.
-```
-null :: [a] -> Bool
-null [] = True
-null (x:xs) = False
-```
-`[]` and `(x:xs)` are patterns that are disjoint and exhaustive, so we can write the two equations for null in any order.
-
 ### Concatenation
+The definition for `(++)`, the concatenation operation
+```
+(++) :: [a] -> [a] -> [a]
+[] ++ ys = ys
+(x:xs) ++ ys = x:(xs ++ ys)
+```
+
 
 ### concat, map, and filter
 
 ### zip and zipWith
+`zip` and `zipWith` are functions that either take two lists and combines them into a list of pairs and stops when the shortest is exhausted, or applies a function to pairs of elements from two lists, produving a new list. They are defined in the standard prelude as
+```
+zip :: [a] -> [b] -> [(a,b)]
+zip (x:xs) (y:ys) = (x,y): zip xs ys
+zip = []
 
+zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
+zipWith f (x:xs) (y:ys) = f x y : zipWith f xs ys
+zipWith f = []
+```
+Alternatively, we can write this with a 'don't care' pattern
+```
+zip xs [] = []
+zip [] ys = []
+zip (x:xs) [] = []
+zip (x:xs) (y:ys) = (x,y) :zip xs ys
+```
+We could also define zip as `zip = zipWith (,)` where `(,)` is a constructor for pairs: `(,) a b = (a,b)`.
 
+If we want to determine whether a list is in nondecreasing order, we can use `zipWith`.
+```
+nondec :: (Ord a) => [a] -> Bool
+nondec [] = True
+nondec [x] = True
+nondec (x:y:xs) = (x <= y) && nondec (y:xs)
+```
+Or a shorter, non-direct, definition
+```
+nondec xs = and (zipWith (<=) xs (tail xs))
+```
+`and` is also another useful function in the standard prelude. It takes in a list of booleans and returns `True` if all of the elements are true, and `False` otherwise.
+
+An example of zipWith for temperatures and errors
+```
+zipWith (+) temps errs
+zipWith (-) temps errs
+zipWith (\t e -> (t-e, t+e) temps errs)
+```
+### Folding
+*Folding* is the process of recursively applying a function to the elements of a list to accumulate a single result. (Like literally folding a list onto itself)
+```
+[a] -> b
+(a -> a -> a) -> [a] -> a
+ 0 [1,2,3,4,5]
+    1
+    (1+2)3
+        (3+3)6
+            (6+4)10
+                (10+5) = 15
+```
+or another way of looking at it (discrete maths much?)
+```
+      Left Fold                  Right Fold
+0 + 1:[2,3,4,5]            | 1:[2,3,4,5]
+(0+1) + 2:[3,4,5]          | 1 + 2:[3,4,5]
+((0+1)+2) + 3:[4,5]        | 1 + (2+3:[4,5])
+(((0+1)+2)+3) + 4:[5]      | 1 + (2+(3+4:[5]))
+((((0+1)+2)+3)+4) + 5:[]   | 1 + (2+(3+(4+5:[])))
+                           | 1 + (2+(3+(4+(5+0))))
+          15               |          15
+```
+Now writing this in code.
+```
+foldr :: (a -> b -> b) -> b -> [a] -> b
+foldr g z xs
+    | null xs = z
+    | otherwise = g (head xs) (foldr g z (tail xs))
+
+foldl :: (b -> a -> b) -> b -> [a] -> b
+foldl h z xs
+    | null xs = z
+    | otherwise = foldl h (h z (head xs)) (tail xs)
+```
+Making a factorial function using fold
+```
+factorial n = foldl (*) 1 [1..n]
+(if communicative, then we change foldl to foldr)
+```
 ## Chapter 5-6 (Higher Order Functions)
 
 ## Practice 2 Problems
