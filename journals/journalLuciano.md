@@ -216,6 +216,19 @@ The definition for `(++)`, the concatenation operation
 
 
 ### concat, map, and filter
+These are all very useful list operations. Here are their definitions using pattern matching:
+```
+concat :: [[a]] -> [a]
+concat [] = []
+concat (xs:xss) = xs ++ concat xss
+
+map :: (a -> b) -> [a] -> [b]
+map f [] = []
+map f (x:xs) = f x:map f xs
+
+filter p = concat . map (test p)
+test p x = if p x then [x] else []
+```
 
 ### zip and zipWith
 `zip` and `zipWith` are functions that either take two lists and combines them into a list of pairs and stops when the shortest is exhausted, or applies a function to pairs of elements from two lists, produving a new list. They are defined in the standard prelude as
@@ -296,7 +309,7 @@ Making a factorial function using fold
 factorial n = foldl (*) 1 [1..n]
 (if communicative, then we change foldl to foldr)
 ```
-## Chapter 5-6 (Higher Order Functions)
+## Chapter 6 (Proofs)
 
 ## Practice 2 Problems
 The pratice 2 problems weren't that bad. The in class ones, especially the applyToEach helped me understand better how Haskell handles lists. However, the Kattis problems proved to be a bit more difficult.
