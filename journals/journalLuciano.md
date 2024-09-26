@@ -144,13 +144,21 @@ The `Num` class has two subclasses, `Real` and `Fractional` for those respective
 
 So when we are adding numbers, with the earlier type `Num a => a` for 42 is why we can form expressions such as `42 + 3.149`. This would produce a type `42 + 3.149 :: Fractional a => a`.
 
-## Haskell Lists
-We can treat them as a singly linked list. I can already see it in how Haskell has worked with it so far (the whole (x:xs) or head tail structure). So functions that work with lists are considered recursive, higher order types (takes in a function as an argument).
+### Haskell Lists
+Lists are important because they are the workhorse of functional programming. They can be used to fetch and carry data from one function to another. 
+List notation itself, `[1,2,3]`, is an abbreviation for a more basic form `1:2:3:[]`. We can treat them as a singly linked list. I can already see it in how Haskell has worked with it so far (the whole (x:xs) or head tail structure). So functions that work with lists are considered recursive, higher order types (takes in a function as an argument).
 
-In Bird, every list of type a takes either
+The operator `(:) :: a -> [a] -> [a]` (cons) is a constructor for lists. It associates to the right so there isnt a need for parenthesis.
+
+Every list of type a takes either
 - Undefined `undefined :: [a]`
 - Empty `[] :: [a]`
 - A list of the form `x:xs` where `x :: a` and `xs :: [a]`
+
+So there are
+- Finite lists, built from `(:)` and `[]`; such as `1:2:3:[]`
+- Partial lists, built from `(:)` and `undefined`; such as the list `filter (<4) [1..]` which is the partial list `1:2:3:undefined`.
+- Infinite lists, built from `(:)` alone; such as `1[..]`
 
 Some example of list functions (head, tail, last, init, null, (:, ++), map, filter, zipWith, zip, DataList: concat, takeWhile, take, nub, elemIndex)
 ### Enumeration
@@ -174,6 +182,21 @@ allToUpper (x:xs) = map toUpper x : allToUpper xs
 allToUpper [] = []
 ```
 Also `map (map toUpper) words`
+
+### Basic operations
+Functions can be defined over lists by pattern matching.
+```
+null :: [a] -> Bool
+null [] = True
+null (x:xs) = False
+```
+`[]` and `(x:xs)` are patterns that are disjoint and exhaustive, so we can write the two equations for null in any order.
+
+### Concatenation
+
+### concat, map, and filter
+
+### zip and zipWith
 
 
 ## Chapter 5-6 (Higher Order Functions)
