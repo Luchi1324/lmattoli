@@ -10,6 +10,7 @@ Some examples of concrete types
 - Bool: simple boolean value
 ## Higher-order types
 A **higher order type** (type constructor) are types that take other types as a parameter to produce a new type. For example, a `[Int]` list is a list that takes in multiple `Int`'s to create an list of Ints. It's like higher order functions that take in functions.
+
 Some common examples
 - List ([])
     - Literal examples
@@ -53,7 +54,7 @@ class Eq a where
 Some examples of common type classes w/ essential functions, example instances, and usage.
 - `Eq`: Defines equality and inequality operations
 ```
-(==) :: Eq a => a -> a -> Bool
+(==) :: Eq a => a -> a -> Bool  -- Essential functions
 (/=) :: Eq a => a -> a -> Bool
 ------------------------------
 instance Eq Person where
@@ -67,7 +68,7 @@ instance Eq Person where
 - `Ord`: Defines a total ordering for types
 ```
 compare :: Ord a => a -> a -> Ordering
-(<) :: Ord a => a -> a -> Bool
+(<) :: Ord a => a -> a -> Bool  -- Essential functions
 (<=) :: Ord a => a -> a -> Bool
 (>) :: Ord a => a -> a -> Bool
 (>=) :: Ord a => a -> a -> Bool
@@ -82,7 +83,7 @@ instance Ord Person where
 
 - `Enum`: Represents types that have predecessors and successors, typically used for sequentially ordered types
 ```
-succ :: Enum a => a -> a
+succ :: Enum a => a -> a                     -- Essential functions
 pred :: Enum a => a -> a
 toEnum :: Enum a => Int -> a
 fromEnum :: Enum a => a -> Int
@@ -102,7 +103,7 @@ succ Monday       -- Tuesday
 
 - `Show`: Allows a type to be converted to a human-readable `String`
 ```
-show :: Show a => a -> String
+show :: Show a => a -> String  -- Essential functions
 -----------------------------
 instance Show Person where
   show (Person name age) = name ++ " is " ++ show age ++ " years old."
@@ -114,7 +115,7 @@ show [1, 2, 3]    -- "[1,2,3]"
 
 - `Read`: Allows a type to be parsed from a `String`
 ```
-read :: Read a => String -> a
+read :: Read a => String -> a  -- Essential functions
 ------------------------------
 read "123" :: Int     -- 123
 read "True" :: Bool   -- True
@@ -123,7 +124,7 @@ read "[1,2,3]" :: [Int] -- [1,2,3]
 
 - `Num`: Represents numeric types that support basic arithmetic operations
 ```
-(+) :: Num a => a -> a -> a
+(+) :: Num a => a -> a -> a  -- Essential functions
 (-) :: Num a => a -> a -> a
 (*) :: Num a => a -> a -> a
 negate :: Num a => a -> a
@@ -149,7 +150,7 @@ negate (-4) -- 4
 
 - `Fractional`: Represents fractional (non-integer) numbers supporting division. Note that `Fractional` is a subclass of `Num`
 ```
-(/) :: Fractional a => a -> a -> a
+(/) :: Fractional a => a -> a -> a            -- Essential functions
 recip :: Fractional a => a -> a
 fromRational :: Fractional a => Rational -> a
 ----------------------------------------------
@@ -165,7 +166,7 @@ fromRational (3 % 4) -- 0.75
 
 - `Integral`: Represents integral (whole) types supporting division that disgards the remainder. Note that `Integral` is a subclass of `Real` and `Num`
 ```
-quot :: Integral a => a -> a -> a
+quot :: Integral a => a -> a -> a          -- Essential functions
 rem :: Integral a => a -> a -> a
 div :: Integral a => a -> a -> a
 mod :: Integral a => a -> a -> a
@@ -187,7 +188,7 @@ toInteger 5   -- 5
 
 - `Floating`: Represents floating-point types supporting transcendental functions. Note that `Floating` is a subclass of `Fractional`
 ```
-pi :: Floating a => a
+pi :: Floating a => a        -- Essential functions
 exp :: Floating a => a -> a
 log :: Floating a => a -> a
 sin :: Floating a => a -> a
