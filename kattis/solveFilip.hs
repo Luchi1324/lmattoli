@@ -31,9 +31,11 @@ solveFilip' = interact (showTheWork' . doTheWork' . parseFilip')
     (show . maximum . map read . map reverse . words) s
 -}
 
+parseFilip' :: String -> [String]
 parseFilip' = words
 
 doTheWork' :: [String] -> Int
 doTheWork' = maximum . map read . map reverse
 
+showTheWork' :: Int -> String
 showTheWork' = show
