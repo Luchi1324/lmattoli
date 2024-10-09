@@ -309,7 +309,6 @@ Making a factorial function using fold
 factorial n = foldl (*) 1 [1..n]
 (if communicative, then we change foldl to foldr)
 ```
-## Chapter 6 (Proofs)
 
 ## Practice 2 Problems
 The pratice 2 problems weren't that bad. The in class ones, especially the applyToEach helped me understand better how Haskell handles lists. However, the Kattis problems proved to be a bit more difficult.
@@ -579,4 +578,27 @@ For claritys sake, breaking cp down into its recursive calls for `cp [[1,2], [3,
         [2,3,5], [2,3,6], [2,4,5], [2,4,6]
       ]
 ```
-                    
+
+## Chapter 6 (Proofs)
+Given that we have suitable laws to work with, we can use equational reasoning to prove other laws. Equational logic is a simple but powerful tool in functional programming, given how they can guide newer and more fficient definitions of the functions and other values we have constructed. Chapter 6 focuses more proof by induction, and how we can shorten these proofs by introducing *higher-order* functions that capture common patters of computation.
+
+### Induction over natural numbers
+Given the following definition for the exponential function:
+```
+exp :: Num a => a -> Nat -> a
+exp x Zero = 0
+exp x (Succ n) = x * exp x n
+```
+We would expect that the equation `exp x (m+n) = exp x m * exp x n` is true for all of `m` and `n` since x<sup>m+n</sup> = x<sup>m</sup> x<sup>n</sup>. WE can prove this by *induction*.
+
+Every natural number is either `Zero` or of the form `Succ n` for some natural number `n`, which the definition `data Nat = Zero | Succ Nat` tells us.
+
+In a usual induction proof, we would prove that *P(n)* holds for all natural numbers *n*, we can prove 1. *P(0)* holds;
+
+2. For all natural numbers *n*, that *P(n + 1)* holds assuming that *P(n)* does.
+
+We have reverted to writing 0 for `Zero` and *n*+1 for `Succ n`. For the second proff, we can assume *P(n)* and use this assumption to prove *P(n + 1)*.
+
+
+
+## Chapter 7 & 8 (Efficiency and Pretty-printing)
