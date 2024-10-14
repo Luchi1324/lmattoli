@@ -74,13 +74,37 @@ map 'f' []              |  ={map.1}
 []                      |  []
 
 Setting up inductive case
-map (f . g) (x:xs)             |  (map f . map g) (x:xs)
-={map.2}                       |  ={composition}
-(f . g) x : (map (f.g) xs)     |  map f (map g (x:xs))
-={composition} for head        |  ={map.2}
-f (g x) : (map (f.g) xs)       |  map f (g x : map g xs)
-={I.H for (map f . map g) xs}  |  ={map.2}
-f (g x) : ((map f . map g) xs) |  f (g x) : map (map g xs)
-                               |  ={composition}
-                               |  f (g x) : ((map f . map g) xs)
+map (f . g) (x:xs)               |  (map f . map g) (x:xs)
+={map.2}                         |  ={composition}
+(f . g) x : (map (f.g) xs)       |  map f (map g (x:xs))
+={composition} for head          |  ={map.2}
+f (g x) : (map (f.g) xs)         |  map f (g x : map g xs)
+={I.H}                           |  ={map.2}
+since (map f . map g) xs = above |  ""
+f (g x) : ((map f . map g) xs)   |  f (g x) : map (map g xs)
+                                 |  ={composition}
+                                 |  f (g x) : ((map f . map g) xs)                               
+-}
+
+{-
+fmap proofs
+maybe fmap definitions
+1. fmap f Nothing = Nothing
+2. fmap f (Just x) = Just (f x)
+
+fmap (f.g) Nothing
+= Nothing
+
+(fmap f . fmap g) Nothing
+fmap f (fmap g Nothing)
+fmap f Nothing
+Nothing
+
+fmap (f . g) (Just x)   | (fmap f . fmap g) (Just x)
+={Maybe.fmap.2}         | ={composition}
+Just ((f . g) x)        | fmap f (fmap g (Just x))
+={Composition}          | ={Maybe.fmap.2}
+Just (f (g x))          | fmap f (Just (g x))
+                        | ={Maybe.fmap.2}
+                        | Just (f (g x))
 -}

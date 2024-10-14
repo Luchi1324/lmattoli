@@ -599,6 +599,132 @@ In a usual induction proof, we would prove that *P(n)* holds for all natural num
 
 We have reverted to writing 0 for `Zero` and *n*+1 for `Succ n`. For the second proff, we can assume *P(n)* and use this assumption to prove *P(n + 1)*.
 
+From this, we prove that `exp x (m + n) = exp x m * exp x n` for all *x, m* and *n* by induction on *m*. We can also prove it by a more complex induction proof.
+
+**Case 0**
+```
+exp x (0 + n) exp x 0 * exp x n
+= {since 0 + n = n} = {exp.1}
+exp x n 1 * exp x n
+    = {since 1 * x = x}
+    exp x n
+```
+**Case m + 1**
+```
+exp x ((m + 1) + n) exp x (m + 1) * exp x n = {arithmetic} = {exp.2} [exp part 2]
+exp x ((m + n) + 1) (x exp x m) exp x n = {exp.2} [exp part 2] = {since * is associative}
+x * exp x (m + n) x (exp x m exp x n) = {induction}
+x (exp x m ex x n)
+```
+The above format is what is going to be used for all induction proofs. Like the one in discrete maths (again I dislike being reminded of this class ;-;) it breaks into two cases,
+the *base case* 0 and the *inductive case n* + 1. Each case is laid out into two columns, one for the left hand side of the equation, and one for the right hand side. (Should there not be enough space for both columns, we display one after the other.) Each side is simplified until either one cannot be simplified further, and the proof of each case is completed by observing that each side simplifies to the same result. The hints `exp.1` and `exp.2` refer to the first and second equations defining `exp`.
+
+Finally, just observe that the proof depends on three further laws, specifically
+```
+(m + 1) + n = (m + n) + 1
+1 * x = x
+(x * y) z = x (y * z)
+```
+If we decided to undertake the totally easy task of recreating all of arithmetic from scratch, we would also have to prove these laws. In fact, we can only really prove the first since it is entirely about natural numbers and we have defined the operation of addition on natural numbers. The other two rely on the implementation of multiplication prescribed by Haskell for the various instances of the type class `Num`.
+
+### Induction over lists
+We know that every finite list is either the empty list `[]` or of the form `x:xs` where `xs` is a finite list. Hence, to prove that *P(xs)* holds for all finite lists *xs*, we can prove 1. *P([])* holds;
+
+2. For all *x* and for all finite lists *xs*, that *P(x:xs)* holds assuming *P(xs)* does.
+
+As an example, recall the definition of concatenation `(++): [] ++ ys = ys`
+- `(x:xs) ++ ys = x : (xs ++ ys)`
+
+We prove that `++` is associative:
+- `(xs ++ ys) ++ zs = xs ++ (ys ++ zs)`
+
+for all finite lists `xs` and for all lists `ys` and `zs` (niether of the last two is required to be a finite list), by induction on `xs`:
+
+**Case []**
+```
+([] ++ ys) ++ zs [] ++ (ys ++ zs) = {++.1} [concat definition part 1]
+ys ++ zs ys ++ zs
+```
+**Case x:xs**
+```
+((x:xs) ++ ys) ++ zs (x:xs) ++ (ys ++ zs) = {++.2} = {++.2} [concat definition part 2]
+==> (x:xs) ++ ys ==> x:(xs ++ ys) 
+==> (x:xs) ++ (ys ++ zs) ==> x:(xs ++ (ys ++ zs))
+(x:(xs ++ ys)) ++ zs x:(xs ++ (ys ++ zs)) = {++.2} = {induction}
+x:((xs ++ ys) ++ zs) x:((xs ++ ys) ++ zs)
+```
+As another example, given the definition
+```
+reverse [] = []
+reverse (x:xs) = reverse xs ++ [x]
+```
+We prove that `reverse` is an involution:
+- `reverse (reverse xs) = xs`
+for all finite lists `xs`. The base case is easy and the inductive case proceeds:
+
+**Case x:xs**
+```
+reverse (reverse (x:xs))
+={reverse.2} [reverse definiton part 2]
+reverse (reverse xs ++ [x])
+={???}
+x:reverse (reverse xs)
+={induction}
+x:xs
+```
+The right-hand column is omitted in this example, since it consists solely of `x:xs`. But we got stuck in the proof halfway through. We need an auxiliary result, namely that `reverse (ys ++ [x]) = x:reverse ys` for all finite lists `ys`. This auxiliary results is also proved by induction:
+
+**Case []**
+
+### Functor laws
+Essentially a functor allows us to apply a function over a 'wrapped' value.
+1. `fmap id = id`
+2. `fmap (f . g) = fmap f . fmap g`
+
+Assume `id :: a -> a ; id x = x`
+
+Then `fmap id :: f a -> f a; (fmap id) v = v`
+
+Functor definition
+```
+class Functor f where
+    fmap :: (a -> b) -> f a -> f b
+    (<$>) = fmap
+```
+
+### Example proof with `map (f . g) xs = (map f . map g) xs`
+```
+What do we need (definitions)?
+Map
+1. map f [] = [] -- Empty case
+2. map f (x:xs) = f x : map f xs -- Non empty case
+Func composition
+1. (f . g) x = f (g x)
+
+Setting up base case
+map (f . g) []          |  (map f . map g) []
+since (f.g) can be 'f'  |  ={composition}
+""                      |  map f (map g [])
+""                      |  ={map.1}
+={map.1}                |  map f ([])
+map 'f' []              |  ={map.1}
+={map.1}                |  ""
+[]                      |  []
+
+Setting up inductive case
+map (f . g) (x:xs)               |  (map f . map g) (x:xs)
+={map.2}                         |  ={composition}
+(f . g) x : (map (f.g) xs)       |  map f (map g (x:xs))
+={composition} for head          |  ={map.2}
+f (g x) : (map (f.g) xs)         |  map f (g x : map g xs)
+={I.H}                           |  ={map.2}
+since (map f . map g) xs = above |  ""
+f (g x) : ((map f . map g) xs)   |  f (g x) : map (map g xs)
+                                 |  ={composition}
+                                 |  f (g x) : ((map f . map g) xs)
+```
 
 
 ## Chapter 7 & 8 (Efficiency and Pretty-printing)
+### Efficiency and Lazy evaluation
+Efficiency 
