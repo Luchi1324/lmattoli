@@ -653,28 +653,29 @@ ys ++ zs ys ++ zs
 (x:(xs ++ ys)) ++ zs x:(xs ++ (ys ++ zs)) = {++.2} = {induction}
 x:((xs ++ ys) ++ zs) x:((xs ++ ys) ++ zs)
 ```
-As another example, given the definition
+
+Every partial list is either the undefined list or of the form `x:xs`. To prove that *P(xs)* holds for all partial lists *xs*, we prove that *P(undefined)* holds, and *P(x:xs)* holds assuming *P(xs)* does for all `x` and partial lists `xs`.
+
+We prove that `xs ++ ys = xs`, for all partial list `xs` and all lists `ys`.
+
+**Case undefined**
 ```
-reverse [] = []
-reverse (x:xs) = reverse xs ++ [x]
+undefined ++ ys
+={++.0}
+undefined
 ```
-We prove that `reverse` is an involution:
-- `reverse (reverse xs) = xs`
-for all finite lists `xs`. The base case is easy and the inductive case proceeds:
 
 **Case x:xs**
 ```
-reverse (reverse (x:xs))
-={reverse.2} [reverse definiton part 2]
-reverse (reverse xs ++ [x])
-={???}
-x:reverse (reverse xs)
+(x:xs) ++ ys
+={++.2}
+x:(xs ++ ys)
 ={induction}
 x:xs
 ```
-The right-hand column is omitted in this example, since it consists solely of `x:xs`. But we got stuck in the proof halfway through. We need an auxiliary result, namely that `reverse (ys ++ [x]) = x:reverse ys` for all finite lists `ys`. This auxiliary results is also proved by induction:
 
-**Case []**
+### The function `foldr`
+
 
 ### Functor laws
 Essentially a functor allows us to apply a function over a 'wrapped' value.
@@ -726,5 +727,33 @@ f (g x) : ((map f . map g) xs)   |  f (g x) : map (map g xs)
 
 
 ## Chapter 7 & 8 (Efficiency and Pretty-printing)
+Efficiency has always been an ever-present concern in computing, and in recent discussions even more so. The best way to get efficiency is to design an algorithm. However we are focusing on Haskell in Language Study, and not algorithms which is Algorithm Design (PTSD ;-;). Functional programming allows us to construct elegant expressions and definitions, and this chapter is going to look at what it costs to evaluate them. As Alan Perlis put it, *'a functional programmer was someone who knew the value of everything and the cost of nothing'*.
+
 ### Efficiency and Lazy evaluation
-Efficiency 
+Let's look at a expression we previously evaluated lazily, `sqr (sqr (3 + 4))`. Here we reduce it to its simplest possible form by applying reduction steps from the **outside in**. This means that we install the definition of the function `sqr` first and evaluate its argument *only* when needed. The following evaluation sequences follows this, but it isn't lazy evaluation:
+```
+sqr (sqr (3 + 4))
+= sqr (3 + 4) * sqr (3 + 4)
+= ((3 + 4) * (3 + 4)) --> ((3 + 4) (3 + 4))
+= ...
+= 2401
+```
+The ellipsis just hides four evaluations of `3 + 4` and two of `7 * 7`. Our simple policy of substituting argument expressions into function expressions is not very efficient for carrying out reduction.
+
+*However*, lazy evaluation guarantees that when the value of an argument is needed, it is evaluated *only once*. With lazy evaluation, the above sequence would look like:
+```
+sqr (sqr (3 + 4))
+    = let x = sqr (3 + 4) 
+        in x * x
+    = let y = 3 + 4
+        in let x = y * y
+            in x * x
+    = let x = 49
+        in x * x
+    = 2401
+```
+`3 + 4` is evaluated only once (and by extension `7 * 7`). The names `x` and `y` have been bound to expressions using `let`, but in the context of Haskell these names are anonymous pointers to expressions. Once an expression has been reduced to a value, the pointer then points to that value and that value can then be shared.
+
+The headline 'Under lazy evaluation arguments are evaluated only when needed and then only once!' is a bit misleading. In order to evaluate `sqr` we have to evaluate its argument, but in order to evaluate something like `head xs` we don't actually need to evaluate `xs` all the way. Rather, we just evaluate it to the point where it becomes an expression of the form `y:ys`. Then `head xs` can return `y` and `sqr (head xs)` can return `y * y`. 
+
+Generally, an expression is said to be in *head normal form* if it's a function (such as `sqr`) or if it takes the form of a data constructor (such as `(:)`) applied to arguments. Every expression in normal form is in head normal form, but not every function in head normal form is in normal form. For example, `(e1, e2)` is in head normal form (equivalent to `(,) e1 e2`, where `(,)` is the data constructor for pairs), but it is in normal form only if both `e1` and `e2` are. With numbers or booleans, there is no distinction between the two kinds of normal form.
