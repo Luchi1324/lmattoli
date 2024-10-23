@@ -131,3 +131,46 @@ reverse (xs ++ ys) ++ [x]       | (reverse ys ++ reverse xs) ++ [x]
 = { I.H }                       | ""
 reverse ys ++ reverse xs ++ [x] | reverse ys ++ reverse xs ++ [x]
 -}
+
+{-
+Definitions:
+(f . g) x = f (g x) -- part 1 func comp
+
+head [] = undefined -- part 0 head
+head (x:_) = x      -- part 1 head
+
+map _ [] = []                   -- part 1 map
+map f (x:xs) = f x : map f xs   -- part 2 map
+
+Proof:
+[From point free to w/ parameters]
+head . map f = f . head
+(head . map f) xs = (f . head) xs
+
+Case 1: P(undefined)
+(head . map f) undefined   |  (f . head) undefined
+= { (.).1 }                |  = { (.).1 }
+head (map f undefined)     |  f (head undefined)
+= { * if f strict }        |  = { head is strict }
+head undefined             |  f undefined
+
+
+Case 2: P([])
+(head . map f) []     |  (f . head) []
+= { (.).1 }           |  = { (.).1 }
+head (map f [])       |  f (head [])
+= { map.1 }           |  = { head.0 }
+head []               |  f undefined
+= { head.0 }          |  = { *if f is strict }
+undefined             | undefined
+
+
+Case 3: P(xs) -> P(x:xs)
+(head . map f) (x:xs)   |  (f . head) (x:xs)
+= { (.).1 }             |  = { (.).1 }
+head (map f (x:xs))     |  f (head x:xs)
+= { map.2 }             |  = { head.1 }
+head (f x : map f xs)   |  f x
+= { head.1 }            |
+f x                     |
+-}
