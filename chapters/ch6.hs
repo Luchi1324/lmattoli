@@ -97,3 +97,37 @@ Just (f (g x))          | fmap f (Just (g x))
                         | ={Maybe.fmap.2}
                         | Just (f (g x))
 -}
+
+{-
+Definitions
+reverse :: [a] -> [a]
+reverse [] = []
+reverse (x:xs) = reverse xs ++ [x]
+
+[] ++ ys = ys
+(x:xs) ++ ys = x:(xs ++ ys)
+
+# Prior results
+xs ++ [] = xs --- (++).rightidentity
+(xs ++ ys) ++ xs = xs ++ (ys ++ zs) --- (++).associativity
+
+# Proof
+P(xs): reverse (xs ++ ys) = reverse ys ++ reverse xs
+
+Base Case P([]):
+reverse ([] ++ ys)  |  reverse ys ++ reverse []
+= { (++).1 }        |  = { reverse.1 }
+reverse ys          |  reverse ys ++ [] (need to use a prior proof)
+                    |  = { (++).rightidentity }
+                    |  reverse ys
+
+
+Inductive Case: P(xs) -> P(x:xs)
+reverse ((x:xs) ++ ys)          | reverse ys ++ reverse (x:xs)
+= { (++).2 }                    | = { reverse.2 }
+reverse (x:(xs ++ ys)           | reverse ys ++ (reverse xs ++ [x])
+= { reverse.2 }                 | = { (++).associativity }
+reverse (xs ++ ys) ++ [x]       | (reverse ys ++ reverse xs) ++ [x]
+= { I.H }                       | ""
+reverse ys ++ reverse xs ++ [x] | reverse ys ++ reverse xs ++ [x]
+-}
