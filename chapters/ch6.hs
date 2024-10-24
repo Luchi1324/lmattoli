@@ -174,3 +174,81 @@ head (f x : map f xs)   |  f x
 = { head.1 }            |
 f x                     |
 -}
+
+
+{-
+Definitions:
+instance Applicative [] where
+    pure x = [x]                            { pure.1 }
+    [] <*> _ = []                           { (<*>).1 }
+    (f:fs) <*> xs = map f xs ++ (fs <*> xs) { (<*>).2 }
+-------------------------------------------
+map _ [] = []                               { map.1 }
+map f (x:xs) = f x : map f xs               { map.2 }
+-------------------------------------------
+id x = x                                    { id.1 }
+-------------------------------------------
+(f . g) x = f (g x)                         { (.).1 }
+-------------------------------------------
+[] ++ ys = ys                               { (++).1 }
+(x:xs) ++ ys = x:(xs ++ ys)                 { (++).2 }
+-------------------------------------------
+xs ++ [] = xs                               { (++).rightidentity }
+(xs ++ ys) ++ zs = xs ++ (ys ++ zs)         { (++).associativity }
+-------------------------------------------
+map id xs = id xs                           { Functor.preservesIdentity }
+-------------------------------------------
+f $ x = f x
+($x) f = fx
+
+Prove Identity Law: pure id <*> x = x
+pure id <*> x
+= { pure.1 }
+[id] <*> x
+= { (<*>).2 }
+map id x ++ ([] <*> x)
+= { (<*>).1 }
+map id x ++ []
+= { (++).rightidentity }
+map id x
+= { Functor.preservesIdentity } prior result
+id x
+= { id.1 }
+x
+
+Prove homomorphism law: pure (g x) = pure g <*> pure x
+
+pure (g x)                  |  pure g <*> pure x
+= { pure.1 }                |  = { pure.1 }
+[g x]                       |  [g] <*> pure x
+                            |  = { <*>.2 }
+                            |  map g pure x ++ ([] <*> pure x)
+                            |  = { <*>.1 }
+                            |  map g x ++ []
+                            |  = { (++).rightidenity }
+                            |  map g (pure x)
+                            |  = { pure.1 }
+                            |  map g ([x])
+                            |  = { map.2 }
+                            |  g x : []
+                            | [g x]
+
+Prove interchange law: u <*> pure y = pure ($y) <*> u
+* u is a list of fucntions
+
+u <*> pure y                |  pure ($y) <*> u
+= { pure.1 }                |  = { pure.1 }
+u <*> [y]                   |  [$y] <*> u
+= { (<*>).2 }               |  = { (<*>).2 }
+map u y ++ (u <*> y)        |  map $y u ++ ([] <*> u)
+                            |  = { (<*>).1 }
+                            |  map $y u ++ []
+                            |  = { (++).rightidentity }
+                            |  map $y u
+                            |  = { map.2 }
+                            |  ($y) u : map ($y) []
+                            |  = { map.1 }
+                            |  ($y) u : []
+                            |  [($y) u]
+                            |  [y $ u]
+-}

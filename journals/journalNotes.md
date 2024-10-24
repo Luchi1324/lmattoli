@@ -634,4 +634,13 @@ sqr (sqr (3 + 4))
 
 The headline 'Under lazy evaluation arguments are evaluated only when needed and then only once!' is a bit misleading. In order to evaluate `sqr` we have to evaluate its argument, but in order to evaluate something like `head xs` we don't actually need to evaluate `xs` all the way. Rather, we just evaluate it to the point where it becomes an expression of the form `y:ys`. Then `head xs` can return `y` and `sqr (head xs)` can return `y * y`. 
 
-Generally, an expression is said to be in *head normal form* if it's a function (such as `sqr`) or if it takes the form of a data constructor (such as `(:)`) applied to arguments. Every expression in normal form is in head normal form, but not every function in head normal form is in normal form. For example, `(e1, e2)` is in head normal form (equivalent to `(,) e1 e2`, where `(,)` is the data constructor for pairs), but it is in normal form only if both `e1` and `e2` are. With numbers or booleans, there is no distinction between the two kinds of normal form.
+Generally, an expression is said to be in *head normal form* if it's a function (such as `sqr`) or if it takes the form of a data constructor (such as `(:)`) applied to arguments. Every expression in normal form is in head normal form, but not every function in head normal form is in normal form. For example, `(e1, e2)` is in head normal form (equivalent to `(,) e1 e2`, where `(,)` is the data constructor for pairs), but it is in normal form only if both `e1` and `e2` are. With numbers or booleans, there is no distinction between the two kinds of normal form. Or in a less catchy quote...
+- *Under lazy evaluation arguments are evaluated only when needed and then
+only once, and then maybe only to head normal form*
+
+Next, consider the following two definitions of the inductive case of the function `subseqs` that returns all of the subsequences of a list:
+```
+subseqs (x:xs) = subseqs xs ++ map (x:) (subseqs xs)
+subseqs (x:xs) = xx ++ map (x:) xss
+                    where xss = subseqs xs
+```
