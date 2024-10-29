@@ -10,7 +10,7 @@ pure 1 -- this will ALWAYS produce 2
 
 This relates to the term *computational side effects* which is when an action occurs in a computation that isn't part of the computation's expected or stated action. Think of it as any operation that does more than just compute a value. This matters because it makes behavior unpredictable. 
 
-*Referential transparency* is a property where for a given parameter value, function always returns the same result. As a consqeuence, expressions can be directly replaced with their values. This enables equational reasoning about code. For example:
+*Referential transparency* is a property where for a given parameter value, a function always returns the same result. As a consqeuence, expressions can be directly replaced with their values. This enables equational reasoning about code. For example:
 ```
 -- Referentially transparent
 let x = 5 + 5 in x * 2
@@ -301,8 +301,69 @@ Nothing <*> Just 2          -- Nothing
 
 # Equational Reasoning
 ## Substitution
+Substitution just involves swapping out part of an expression that matches a known definition or prior result. For example,
+```
+Map
+1. map f [] = [] -- Empty case
+2. map f (x:xs) = f x : map f xs -- Non empty case
+Func composition
+1. (f . g) x = f (g x)
+
+-- Matches know definition, so we substitute it in to reduce our expression
+map (f . g) []
+since (f.g) can be 'f'
+= {map.1}
+map 'f' []
+= {map.1}
+[]
+```
 
 ## Basic Proof Construction
 Proofs involve a good amount of what's on the wiki under 'useful definitions'. About a 1/3rd.
+We have two columns that show the working for each side of the equations.
+For our proof that `sum (xs ++ ys) = sum xs + sum ys`, we can construct it as follows.
 
-## Induction and inference
+`sum ([] ++ ys) = sum [] + sum ys` (base case where xs is an empty list)
+```
+Definitions:
+    sum [] = 0
+    sum (x:xs) = x + sum xs
+```
+| sum ([] ++ ys)    | sum [] + sum ys |
+| ----------------- | --------------- |
+| sum ([] ++ ys)    | sum [] + sum ys |
+| ={ (++).1 }       | ={ sum.1 }      |
+| sum (ys)          | 0 + sum ys      |
+| sum ys            | sum ys          |
+
+
+## Induction and inferences
+To solve the proof, we need to identify what cases to construct. For example, do we need a base case? Then the next inductive case, if needed? For example:
+- When induction is needed
+    - Recursive data types such as lists
+    - Recursive functions
+    - Properties over infinite structure (infinite lists, lazy evaluation properties)
+- When it isn't needed
+    - Finite cases (fixed-size structures, boolean properties, finite lists)
+    - Direct equalities (simple value comparisons, constructor pattern matches, non-recursive properties, etc)
+Within this inductive case (list of xs or x:xs, etc.), we also need to see where we can use our *inductive hypothesis*, or when we can substitute in what we're trying to prove.
+
+For example, the inductive case for our sum proof. `sum (xs ++ ys) = sum xs + sum ys`
+```
+P(x:xs)
+sum ((x:xs) ++ ys) = sum (x:xs) + sum ys
+Definitions:
+    sum [] = 0
+    sum (x:xs) = x + sum xs
+
+    IH is where we can substitute in the original proof. I.e. sum (xs ++ ys) = sum xs + sum ys
+```
+| sum ((x:xs) ++ ys)                    |  sum (x:xs) + sum ys            |
+| --------------------------------------|---------------------------------|
+| ={ (++).2 }                           |  ={ sum.2 }                     |
+| sum (x : (xs ++ ys))                  |  x + sum xs + sum ys            |
+| ={ sum.2 }                            |  ""                             |
+| x + sum (xs ++ ys)                    |  ""                             |
+| = { IH }                              |  ""                             |
+| x + sum xs + sum ys                   |  x + sum xs + sum ys            |
+
