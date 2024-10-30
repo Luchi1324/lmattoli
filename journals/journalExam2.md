@@ -129,14 +129,14 @@ We can also use this to declare types to craft domain-specific languages. Like u
 ## Basics
 A *functor* applies a function over a wrapped value without altering the structure itself. In Haskell, these are types
 
-There is a term involed that refers to *'lifting'* a function. This means applying a regular function to a value inside a context (list, `Maybe`) using `fmap`.
+There is a term involed that refers to *'lifting'* a function. This means applying a regular function to a value inside a context (list, `Maybe`) using `fmap`. Think of Functors acting as a bridge that lets us apply regular functions to values inside a 'box' without needing to open it. Through *lifting* a function to it can operate on the value inside using `fmap` or `<$>`, this allows pure functions to work with values inside a context such as `Maybe`, `List`, or `IO` without breaking the functional programming paradigm of Haskell.
 
 ## Class Functor
 ```
 class Functor f where
     fmap :: (a -> b) -> (f a -> f b)
 ```
-Only higher-order types, types of kind *\* -> \** (takes one type parameter), can be an instance of `Functor`.
+Only higher-order types, types of kind *\* -> \** (takes one type parameter), can be an instance of `Functor`. Being an *algebraic data type*, this means that it is formed by combining other types (`Maybe`, `List`, `Either`).
 
 The `fmap` function has a type signature `fmap :: Functor f => (a -> b) -> f a -> f b`, which maps a function over a functor.
 ```
@@ -203,7 +203,7 @@ instance Functor Card where
 
 # Applicative Functors
 ## Basics
-*Applicative functors* are an extension of functors. This allows for functions that are themselves in a context to be applied to values in a context. Where functors apply normal functions to wrapped values, applicative ones apply wrapped functions to wrapped values. The term *apply* refers to the ability to apply wrapped functions to wrapped values.
+*Applicative functors* are an extension of functors, allowing functions that take multiple arguments to be applied to a Functor-wrapped value. This allows for functions that are themselves in a context to be applied to values in a context. Where functors apply normal functions to wrapped values, applicative ones apply wrapped functions to wrapped values. The term *apply* refers to the ability to apply wrapped functions to wrapped values.
 ```
 -- Using fmap and then the apply operator
 fmap (*2) [1,2,3] = [2,4,6]
